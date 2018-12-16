@@ -68,29 +68,40 @@ int tree::find(int key) {
 	return find(root, key);
 }
 
-node * tree::remove_predecessor(node * cur) {
-	node * n, * prev = cur;
-	stack<node *> st;
-	for(n = cur->left; n->right; n = n->right) {
+/* Remove o predecessor de cur.*/
+template <typename T1, typename T2>
+node * tree<T1, T2>::remove_predecessor(node * x) {
+	node * n, * prev = NULL;
+	std::stack<node *> st; // Serve para guardar os antecessores, na arvore, do predecessor
+	for(n = x->left; n->right; n = n->right) {
 		st.push(n);
 		prev = n;
 	}
-	if(n->left) {
+
+	/* Uma excecao, em que nao ha filho direito, mas ha filho esquerdo. Nesse caso, por ser uma arvore AVL, ele pode 
+	ter no maximo um filho esquerdo. Queremos remover um no folha, assim, uma rotacao para a direita eh suficiente 
+	para corrigir */
+	if(n->left) { 
 		prev = zig_zig(n, n->left, 1);
 		st.push(prev);
 	}
-	cur->key = n->key;
-	cur->val = n->val;
-	delete n;
-	if(prev != cur) prev->right = NULL;
-	else prev->left = NULL;
 
+	/* Trocamos os valores guardados ali pelos valores do no x. Assim, preservamos esse no e removemos o no x */
+	x->key = n->key;
+	x->val = n->val;
+	delete n;
+	n = NULL;
+
+	prev = NULL; // prev agora eh o anterior de baixo pra cima
+	// Atualiza os nos antecessores, para tomar conta das possiveis rotacoes necessarias
 	while(st.size()) {
 		n = st.top(); st.pop();
-		n->right = update(n->right);
+		
+		n->right = update(prev);
+		prev = n;
 	}
-	cur->left = update(cur->left);
-	return update(cur);
+	x->left = update(prev);
+	return update(x);
 }
 
 node * tree::remove(node * cur, int key) {

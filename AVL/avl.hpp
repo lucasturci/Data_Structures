@@ -136,7 +136,7 @@ T2 tree<T1, T2>::find(T1 key) {
 /* Remove o predecessor de cur.*/
 template <typename T1, typename T2>
 node<T1, T2> * tree<T1, T2>::remove_predecessor(node<T1, T2> * x) {
-	node<T1, T2> * n, * prev = x;
+	node<T1, T2> * n, * prev = NULL;
 	std::stack<node<T1, T2> *> st; // Serve para guardar os antecessores, na arvore, do predecessor
 	for(n = x->left; n->right; n = n->right) {
 		st.push(n);
@@ -157,16 +157,15 @@ node<T1, T2> * tree<T1, T2>::remove_predecessor(node<T1, T2> * x) {
 	delete n;
 	n = NULL;
 
-	if(prev != x) prev->right = NULL;
-	else prev->left = NULL;
-
+	prev = NULL; // prev agora eh o anterior de baixo pra cima
 	// Atualiza os nos antecessores, para tomar conta das possiveis rotacoes necessarias
 	while(st.size()) {
 		n = st.top(); st.pop();
 		
-		n->right = update(n->right);
+		n->right = update(prev);
+		prev = n;
 	}
-	x->left = update(n);
+	x->left = update(prev);
 	return update(x);
 }
 
