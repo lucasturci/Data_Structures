@@ -132,6 +132,7 @@ struct treap {
 
 
 int main() {
+	srand(time(0));
 	int n;
 	scanf("%d", &n);
 
